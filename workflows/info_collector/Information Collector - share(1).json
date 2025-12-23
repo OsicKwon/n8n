@@ -1,0 +1,286 @@
+{
+  "name": "Information Collector - share",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Search Info",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Keyword",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "After Date",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Before Date",
+              "fieldType": "date",
+              "defaultValue": "={{ $now.toFormat('yyyy-MM-dd') }}",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        160
+      ],
+      "id": "d8dab8f6-6d30-42d6-aa5d-f70dc08bbf99",
+      "name": "On form submission :: define search keyword",
+      "webhookId": "d9388ce2-40ef-4321-8d41-fc1d2f97fbb7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Custom Search API configuration\nconst apiKey = '{APIKEY}';\nconst cx = '{cx key}';\nconst query = $input.first().json.Keyword + ' after:' + $input.first().json['After Date'] + ' before:' + $input.first().json['Before Date'] + ' site:reddit.com';\nconst baseUrl = 'https://www.googleapis.com/customsearch/v1';\n\n// Array to store all items\nlet allItems = [];\n\n// Make 10 requests with different start indices\nconst startIndices = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91];\n\nfor (let i = 0; i < startIndices.length; i++) {\n  const start = startIndices[i];\n  \n  // Add delay before each request (except the first one)\n  if (i > 0) {\n    await new Promise(resolve => setTimeout(resolve, 1000));\n  }\n  \n  const url = `${baseUrl}?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}&start=${start}`;\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: url,\n      json:  true\n    });\n\n    // Add items from this response to our collection\n    if (response.items && Array.isArray(response.items)) {\n      allItems = allItems.concat(response.items);\n    }\n  } catch (error) {\n    // Handle 429 or other errors gracefully\n    if (error.statusCode === 429) {\n      console.log(`Rate limit hit at index ${start}, waiting longer...`);\n      await new Promise(resolve => setTimeout(resolve, 3000));\n      // Optionally retry the request here\n    } else {\n      console.log(`Error at index ${start}:`, error.message);\n    }\n  }\n}\n\n// Return all items as a single array\nreturn allItems. map(item => ({ json: item }));"
+      },
+      "id": "ab183fcd-53da-46ef-8126-c91a7e271fc7",
+      "name": "Code :: Fetch from Reddit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        160
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Custom Search API configuration\nconst apiKey = '{APIKEY}';\nconst cx = '{cx key}';\nconst query = $input.first().json.Keyword + ' after:' + $input.first().json['After Date'] + ' before:' + $input.first().json['Before Date'] + ' site:youtube.com';\nconst baseUrl = 'https://www.googleapis.com/customsearch/v1';\n\n// Array to store all items\nlet allItems = [];\n\n// Make 10 requests with different start indices\nconst startIndices = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91];\n\nfor (let i = 0; i < startIndices.length; i++) {\n  const start = startIndices[i];\n  \n  // Add delay before each request (except the first one)\n  if (i > 0) {\n    await new Promise(resolve => setTimeout(resolve, 1000));\n  }\n  \n  const url = `${baseUrl}?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}&start=${start}`;\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: url,\n      json:  true\n    });\n\n    // Add items from this response to our collection\n    if (response.items && Array.isArray(response.items)) {\n      allItems = allItems.concat(response.items);\n    }\n  } catch (error) {\n    // Handle 429 or other errors gracefully\n    if (error.statusCode === 429) {\n      console.log(`Rate limit hit at index ${start}, waiting longer...`);\n      await new Promise(resolve => setTimeout(resolve, 3000));\n      // Optionally retry the request here\n    } else {\n      console.log(`Error at index ${start}:`, error.message);\n    }\n  }\n}\n\n// Return all items as a single array\nreturn allItems. map(item => ({ json: item }));"
+      },
+      "id": "77bcbe27-8c3a-4517-a7df-034fe86409d4",
+      "name": "Code :: Fetch from Youtube",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        368
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Custom Search API configuration\nconst apiKey = '{APIKEY}';\nconst cx = '{cx}';\nconst query = $input.first().json.Keyword + ' after:' + $input.first().json['After Date'] + ' before:' + $input.first().json['Before Date'];\nconst baseUrl = 'https://www.googleapis.com/customsearch/v1';\n\n// Array to store all items\nlet allItems = [];\n\n// Make 10 requests with different start indices\nconst startIndices = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91];\n\nfor (let i = 0; i < startIndices.length; i++) {\n  const start = startIndices[i];\n  \n  // Add delay before each request (except the first one)\n  if (i > 0) {\n    await new Promise(resolve => setTimeout(resolve, 1000));\n  }\n  \n  const url = `${baseUrl}?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}&start=${start}`;\n\n  try {\n    const response = await this.helpers.httpRequest({\n      method: 'GET',\n      url: url,\n      json:  true\n    });\n\n    // Add items from this response to our collection\n    if (response.items && Array.isArray(response.items)) {\n      allItems = allItems.concat(response.items);\n    }\n  } catch (error) {\n    // Handle 429 or other errors gracefully\n    if (error.statusCode === 429) {\n      console.log(`Rate limit hit at index ${start}, waiting longer...`);\n      await new Promise(resolve => setTimeout(resolve, 3000));\n      // Optionally retry the request here\n    } else {\n      console.log(`Error at index ${start}:`, error.message);\n    }\n  }\n}\n\n// Return all items as a single array\nreturn allItems. map(item => ({ json: item }));"
+      },
+      "id": "8770fc79-42d8-4f20-a655-d7f116876f94",
+      "name": "Code :: Fetch from Google Search",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        -48
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1552,
+        144
+      ],
+      "id": "a8a8148d-2d75-42fe-a039-747f1ed239a5",
+      "name": "Merge :: Consolidate all Results"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bb2c1654-db3d-495c-9cd0-52f16a7992b6",
+              "name": "result",
+              "value": "={{ `### [${$json.title}](${$json.link})` }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1792,
+        -48
+      ],
+      "id": "776e286a-894a-473f-87e8-b74fd99a5a7a",
+      "name": "Edit Fields :: Extract 'title' and 'link' only"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        176
+      ],
+      "id": "0176209a-583c-422f-9777-4c6d2b0103cb",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        176
+      ],
+      "id": "8f677627-cda7-4dfe-8e07-6980fd3306a0",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "content": "## Collect New Information\nfrom:\n- Google\n- Reddit\n- Youtube",
+        "height": 704,
+        "width": 368
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        -128
+      ],
+      "id": "eab1772c-6b91-4310-a26f-340fbf3804de",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Define Search Keyword\nwith:\n- start searching date\n- end searching date",
+        "height": 704,
+        "width": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -128
+      ],
+      "id": "74fee9f8-a7e1-4c67-9613-861f6a810413",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Merge, Filter & Export to Markdown Format\nonly:\n- Title & Link\n- Export Markdown format",
+        "height": 704,
+        "width": 736
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        -128
+      ],
+      "id": "802e5213-c802-4b64-b037-853e40617075",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission :: define search keyword": {
+      "main": [
+        [
+          {
+            "node": "Code :: Fetch from Google Search",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code :: Fetch from Reddit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code :: Fetch from Youtube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code :: Fetch from Reddit": {
+      "main": [
+        [
+          {
+            "node": "Merge :: Consolidate all Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code :: Fetch from Youtube": {
+      "main": [
+        [
+          {
+            "node": "Merge :: Consolidate all Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Code :: Fetch from Google Search": {
+      "main": [
+        [
+          {
+            "node": "Merge :: Consolidate all Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge :: Consolidate all Results": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields :: Extract 'title' and 'link' only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields :: Extract 'title' and 'link' only": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eceda585-9694-4ae5-a8a7-c46c7ed7db22",
+  "meta": {
+    "instanceId": "c447b07107361868c978c6e4cc149780679f4e800fd9ffae666657efcdbf19cf"
+  },
+  "id": "0WfqTbONsb4mJxGU",
+  "tags": []
+}
